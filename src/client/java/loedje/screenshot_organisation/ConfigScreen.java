@@ -41,6 +41,7 @@ public class ConfigScreen extends Screen {
 	 */
 	@Override
 	protected void init() {
+		drawables.clear();
 		TextFieldWidget sourceBox = new TextFieldWidget(textRenderer,
 				width / 2 - TEXTBOX_WIDTH - 4,
 				22,
