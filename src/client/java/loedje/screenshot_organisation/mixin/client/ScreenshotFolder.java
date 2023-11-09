@@ -1,6 +1,6 @@
 package loedje.screenshot_organisation.mixin.client;
 
-import loedje.screenshot_organisation.ScreenshotOrganisationConfig;
+import loedje.screenshot_organisation.ScreenshotOrganisation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.util.ScreenshotRecorder;
@@ -10,38 +10,34 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import java.io.File;
+import java.util.Map;
 
 @Mixin(ScreenshotRecorder.class)
 public class ScreenshotFolder {
 
 	@ModifyVariable(method = "saveScreenshotInner", at = @At("STORE"), ordinal = 1)
 	private static File injected(File file) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		Map<String, String> rules = ScreenshotOrganisation.CONFIG.getRules();
+		File screenshotsDir = new File(client.runDirectory, ScreenshotRecorder.SCREENSHOTS_DIRECTORY);
 
-		MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		String location;
-		File destinationFile;
-		if (minecraftClient.getServer() != null) {
-			location = minecraftClient.getServer().getSavePath(WorldSavePath.ROOT).toString();
+		if (client.getServer() != null) {
+			String location = client.getServer().getSavePath(WorldSavePath.ROOT).toString();
 			location = location.substring(0, location.length() - 2);
-			if (ScreenshotOrganisationConfig.rules.containsKey(location)) {
-				destinationFile = new File(ScreenshotOrganisationConfig.rules.get(location));
+			if (rules.containsKey(location)) {
+				return new File(rules.get(location));
 			} else {
-				destinationFile = new File(new File(MinecraftClient.getInstance().runDirectory,
-								ScreenshotRecorder.SCREENSHOTS_DIRECTORY),
-						(minecraftClient.getServer().getSaveProperties().getLevelName()));
+				String levelName = client.getServer().getSaveProperties().getLevelName();
+				return new File(screenshotsDir, levelName);
 			}
-
 		} else {
-			ServerInfo serverInfo = minecraftClient.getNetworkHandler().getServerInfo();
-			location = serverInfo.address;
-			if (ScreenshotOrganisationConfig.rules.containsKey(location)) {
-				destinationFile = new File(ScreenshotOrganisationConfig.rules.get(location));
+			ServerInfo serverInfo = client.getNetworkHandler().getServerInfo();
+			String location = serverInfo.address;
+			if (rules.containsKey(location)) {
+				return new File(rules.get(location));
 			} else {
-				destinationFile = new File(new File(MinecraftClient.getInstance().runDirectory,
-						ScreenshotRecorder.SCREENSHOTS_DIRECTORY),
-						location + " - " + serverInfo.name);
+				return new File(screenshotsDir, location + " - " + serverInfo.name);
 			}
 		}
-		return destinationFile;
 	}
 }

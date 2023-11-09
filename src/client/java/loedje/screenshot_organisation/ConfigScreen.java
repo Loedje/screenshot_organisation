@@ -1,9 +1,13 @@
 package loedje.screenshot_organisation;
 
+import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
@@ -11,79 +15,86 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Util;
+
+import java.nio.file.Path;
+import java.util.List;
 
 @Environment(value= EnvType.CLIENT)
 public class ConfigScreen extends Screen {
 
 	private static final String WORLD_PATH_OR_IP = "World path or IP";
-	private final ScreenshotOrganisationConfig config = new ScreenshotOrganisationConfig();
-	private String worldOrIPBoxContent;
-	private String destinationBoxContent;
+	public static final int TEXTBOX_WIDTH = 200;
+	private String sourceBoxContent = "";
+	private String destinationBoxContent = "";
 	private static final String SCREENSHOT_DESTINATION = "Screenshot destination";
 	private final Screen parent;
+	private final List<Drawable> drawables = Lists.newArrayList();
 	protected ConfigScreen(Screen parent) {
 		super(Text.literal("Screenshot Organisation configuration"));
 		this.parent = parent;
 	}
 
+	/**
+	 * Initialise widgets of config screen.
+	 */
 	@Override
 	protected void init() {
-		TextFieldWidget worldOrIPBox = new TextFieldWidget(textRenderer,
-				width / 2 - 200 - 4,
+		TextFieldWidget sourceBox = new TextFieldWidget(textRenderer,
+				width / 2 - TEXTBOX_WIDTH - 4,
 				22,
-				200,
+				TEXTBOX_WIDTH,
 				20,
 				Text.literal(WORLD_PATH_OR_IP));
-		worldOrIPBox.setMaxLength(256);
-		worldOrIPBox.setText(worldOrIPBoxContent);
-		worldOrIPBox.setChangedListener(s -> worldOrIPBoxContent = worldOrIPBox.getText());
-		addDrawableChild(worldOrIPBox);
+		sourceBox.setMaxLength(256);
+		sourceBox.setText(sourceBoxContent);
+		sourceBox.setChangedListener(s -> sourceBoxContent = sourceBox.getText()
+				.trim()
+				.replace("/","\\"));
+		addDrawableChild(sourceBox);
 
 		TextFieldWidget destinationBox = new TextFieldWidget(textRenderer,
 				width / 2 + 4,
 				22,
-				200,
+				TEXTBOX_WIDTH,
 				20,
 				Text.literal(SCREENSHOT_DESTINATION));
 		destinationBox.setMaxLength(256);
 		destinationBox.setText(destinationBoxContent);
-		destinationBox.setChangedListener(s -> destinationBoxContent = destinationBox.getText());
+		destinationBox.setChangedListener(s -> destinationBoxContent = destinationBox.getText()
+				.trim()
+				.replace("/","\\"));
 		addDrawableChild(destinationBox);
 
-		addDrawableChild(ButtonWidget.builder(Text.literal("Browse"), button -> System.out.println(1))
-				.position(width / 2 - 200 - 4, 22 + 20 + 8)
-				.size(71, 20)
-				.build());
-
-		addDrawableChild(ButtonWidget.builder(Text.literal("Browse"), button -> System.out.println(2))
-				.position(width / 2 + 4, 22 + 20 + 8)
-				.size(71, 20)
+		addDrawableChild(ButtonWidget.builder(Text.literal("Open Minecraft directory"),
+				button -> Util.getOperatingSystem().open(client.runDirectory))
+				.position(width / 2 - 150 / 2, 22 + 20 + 22)
+				.size(150, 20)
 				.build());
 
 		ScreenshotFolderListWidget listWidget = new ScreenshotFolderListWidget(
 				client,
 				width,
 				height,
-				22 + 20 + 8 + 20 + 8,
+				22 + 20 + 8 + 20 + 22,
 				ConfigScreen.this.height - 36,
 				50);
 		addDrawableChild(listWidget);
 
 		addDrawableChild(ButtonWidget.builder(Text.literal("Add"), button -> {
-			if (worldOrIPBoxContent != null && destinationBoxContent != null) {
-				worldOrIPBoxContent = worldOrIPBoxContent.trim();
-				destinationBoxContent = destinationBoxContent.trim();
-				ScreenshotOrganisationConfig.rules.put(worldOrIPBoxContent,destinationBoxContent);
-				listWidget.addRule(worldOrIPBoxContent, destinationBoxContent);
-				config.addRuleToConfig(worldOrIPBoxContent + "=" + destinationBoxContent);
+			if (sourceBoxContent != null && destinationBoxContent != null) {
+				ScreenshotOrganisation.CONFIG.addRuleToConfig(
+						sourceBoxContent, destinationBoxContent);
+				listWidget.addRule(sourceBoxContent, destinationBoxContent);
 			}})
 				.position(width / 2 - 150 - 4, height - 28)
 				.size(71, 20)
 				.build());
 
 		addDrawableChild(ButtonWidget.builder(Text.literal("Remove"), button -> {
-			String removed = listWidget.removeRule(config);
-			if (removed != null) config.removeRuleInConfig(removed);})
+			String removedSource = listWidget.removeRule();
+			if (removedSource != null) ScreenshotOrganisation.CONFIG.removeRule(removedSource);})
 				.position(width / 2 - 71 - 4, height - 28)
 				.size(71, 20)
 				.build());
@@ -93,13 +104,30 @@ public class ConfigScreen extends Screen {
 				.size(150, 20)
 				.build());
 
-		config.readConfig(listWidget);
-		ScreenshotOrganisationConfig.rules.keySet().forEach(System.out::println);
+		ScreenshotOrganisation.CONFIG.getRules().forEach(listWidget::addRule);
+	}
+
+	@Override
+	public void filesDragged(List<Path> paths) {
+		paths.forEach(path -> {
+			if (sourceBoxContent == null || sourceBoxContent.equals("")) {
+				sourceBoxContent = path.toString();
+			} else {
+				destinationBoxContent = path.toString();
+			}
+		});
+		clearAndInit();
 	}
 
 	@Override
 	public void close() {
 		client.setScreen(parent);
+	}
+
+	@Override
+	protected <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement) {
+		drawables.add(drawableElement);
+		return super.addDrawableChild(drawableElement);
 	}
 
 	@Override
@@ -116,13 +144,23 @@ public class ConfigScreen extends Screen {
 				width / 2 + 4 + 100,
 				8,
 				0xFFFFFF);
-		super.render(context, mouseX, mouseY, delta);
+		context.drawCenteredTextWithShadow(
+				this.textRenderer,
+				Text.literal("Drag and drop folders into this window").formatted(Formatting.GRAY),
+				this.width / 2,
+				22 + 20 + 8,
+				0xFFFFFF);
+		renderBackgroundTexture(context);
+		for (Drawable drawable : drawables) {
+			drawable.render(context, mouseX, mouseY, delta);
+		}
+
 	}
 
 	@Environment(value=EnvType.CLIENT)
 	protected class ScreenshotFolderListWidget extends AlwaysSelectedEntryListWidget<Entry> {
 
-		private static final int ROW_WIDTH = 400;
+		private static final int ROW_WIDTH = 500;
 
 
 		private ScreenshotFolderListWidget(MinecraftClient minecraftClient, int width, int height, int top, int bottom, int itemHeight) {
@@ -132,13 +170,16 @@ public class ConfigScreen extends Screen {
 			addEntry(new ConfigScreen.Entry(Text.literal(source), Text.literal(destination)));
 		}
 
-		private String removeRule(ScreenshotOrganisationConfig config) {
+		/**
+		 * Removes selected rule from list widget and gives the removed rule or null
+		 * @return null if nothing is removed, else the removes source.
+		 */
+		private String removeRule() {
 			ConfigScreen.Entry entry = getSelectedOrNull();
 			setSelected(getNeighboringEntry(NavigationDirection.DOWN));
 			String removed = null;
 			if (entry != null) {
-				ScreenshotOrganisationConfig.rules.remove(entry.source.getString());
-				removed = entry.source.getString() + "=" + entry.destination.getString();
+				removed = entry.source.getString();
 				removeEntryWithoutScrolling(entry);
 			}
 			return removed;
@@ -152,11 +193,6 @@ public class ConfigScreen extends Screen {
 		@Override
 		public int getRowWidth() {
 			return ROW_WIDTH;
-		}
-
-		@Override
-		protected boolean removeEntryWithoutScrolling(ConfigScreen.Entry entry) {
-			return super.removeEntryWithoutScrolling(entry);
 		}
 	}
 
