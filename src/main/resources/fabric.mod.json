@@ -15,10 +15,8 @@
 	"icon": "assets/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-		],
-		"client": [
-		]
+		"client": ["loedje.screenshot_organisation.ScreenshotOrganisation"],
+		"modmenu": [ "loedje.screenshot_organisation.ModMenuApiImplementation" ]
 	},
 	"mixins": [
 		{
