@@ -6,6 +6,7 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.util.WorldSavePath;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -14,6 +15,8 @@ import java.util.Map;
 
 @Mixin(ScreenshotRecorder.class)
 public class ScreenshotFolder {
+
+	@Shadow private File file;
 
 	@ModifyVariable(method = "saveScreenshotInner", at = @At("STORE"), ordinal = 1)
 	private static File injected(File file) {
@@ -30,7 +33,7 @@ public class ScreenshotFolder {
 				String levelName = client.getServer().getSaveProperties().getLevelName();
 				return new File(screenshotsDir, levelName);
 			}
-		} else {
+		} else if (client.getNetworkHandler() != null) {
 			ServerInfo serverInfo = client.getNetworkHandler().getServerInfo();
 			String location = serverInfo.address;
 			if (rules.containsKey(location)) {
@@ -38,6 +41,8 @@ public class ScreenshotFolder {
 			} else {
 				return new File(screenshotsDir, location + " - " + serverInfo.name);
 			}
+		} else {
+			return file;
 		}
 	}
 }
