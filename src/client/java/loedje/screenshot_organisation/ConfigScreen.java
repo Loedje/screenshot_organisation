@@ -77,9 +77,8 @@ public class ConfigScreen extends Screen {
 		ScreenshotFolderListWidget listWidget = new ScreenshotFolderListWidget(
 				client,
 				width,
-				height,
+				height - 36 -( 22 + 20 + 8 + 20 + 22),
 				22 + 20 + 8 + 20 + 22,
-				ConfigScreen.this.height - 36,
 				50);
 		addDrawableChild(listWidget);
 
@@ -164,8 +163,8 @@ public class ConfigScreen extends Screen {
 		private static final int ROW_WIDTH = 500;
 
 
-		private ScreenshotFolderListWidget(MinecraftClient minecraftClient, int width, int height, int top, int bottom, int itemHeight) {
-			super(minecraftClient, width, height, top, bottom, itemHeight);
+		private ScreenshotFolderListWidget(MinecraftClient minecraftClient, int width, int height, int top, int itemHeight) {
+			super(minecraftClient, width, height, top, itemHeight);
 		}
 		protected void addRule(String source, String destination) {
 			addEntry(new ConfigScreen.Entry(Text.literal(source), Text.literal(destination)));
