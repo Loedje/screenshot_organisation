@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "screenshot_organisation",
-	"version": "1.3",
+	"version": "1.4",
 	"name": "Screenshot Organisation",
 	"description": "Puts screenshots in folders according to the world save or server you are playing on.",
 	"authors": [
@@ -26,8 +26,6 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.14.22",
-		"minecraft": "~1.20.4",
-		"java": ">=17",
-		"fabric-api": "*"
+		"minecraft": "1.20.x"
 	}
 }
