@@ -21,6 +21,9 @@ import net.minecraft.util.Util;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * TODO fix background
+ */
 @Environment(value= EnvType.CLIENT)
 public class ConfigScreen extends Screen {
 
@@ -150,7 +153,7 @@ public class ConfigScreen extends Screen {
 				this.width / 2,
 				22 + 20 + 8,
 				0xFFFFFF);
-		renderBackgroundTexture(context);
+		renderBackgroundTexture(context, Screen.MENU_BACKGROUND_TEXTURE, 0,0,0,0,width,height);
 		for (Drawable drawable : drawables) {
 			drawable.render(context, mouseX, mouseY, delta);
 		}
@@ -183,11 +186,6 @@ public class ConfigScreen extends Screen {
 				removeEntryWithoutScrolling(entry);
 			}
 			return removed;
-		}
-
-		@Override
-		protected int getScrollbarPositionX() {
-			return width/2 + ROW_WIDTH/2 + 14;
 		}
 
 		@Override

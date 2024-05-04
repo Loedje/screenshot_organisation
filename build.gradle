@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.5-SNAPSHOT'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -35,8 +35,10 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation 'com.terraformersmc:modmenu:9.0.0'
-	modImplementation "nl.enjarai:shared-resources-api:1.7.0"
+	modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}") {
+		exclude(group: "net.fabricmc.fabric-api")
+	}
+	modImplementation "nl.enjarai:shared-resources-api:1.8.0"
 }
 
 processResources {
