@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "screenshot_organisation",
-	"version": "1.7",
+	"version": "1.8",
 	"name": "Screenshot Organisation",
 	"description": "Puts screenshots in folders according to the world save or server you are playing on.",
 	"authors": [

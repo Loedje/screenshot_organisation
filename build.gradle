@@ -38,7 +38,7 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
-	modImplementation "nl.enjarai:shared-resources-api:1.8.0"
+	include modImplementation("nl.enjarai:shared-resources-api:1.8.0")
 }
 
 processResources {
