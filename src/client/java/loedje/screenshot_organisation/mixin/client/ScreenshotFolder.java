@@ -33,7 +33,7 @@ public class ScreenshotFolder {
 		// IDK if this affects performance when you take a screenie
 		if (FabricLoader.getInstance().isModLoaded("shared-resources")) {
 
-			ResourceDirectory resourceDirectory = ((ResourceDirectory) GameResourceRegistry.REGISTRY.get(new Identifier("shared-resources:screenshots")));
+			ResourceDirectory resourceDirectory = ((ResourceDirectory) GameResourceRegistry.REGISTRY.get(Identifier.of("shared-resources:screenshots")));
 			Path path = GameResourceHelper.getPathFor(resourceDirectory);
 			if (path != null) {
 				screenshotsDir = path.toFile();
