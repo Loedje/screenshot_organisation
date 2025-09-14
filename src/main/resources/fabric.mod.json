@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "screenshot_organisation",
-	"version": "1.8",
+	"version": "1.9",
 	"name": "Screenshot Organisation",
 	"description": "Puts screenshots in folders according to the world save or server you are playing on.",
 	"authors": [
@@ -25,7 +25,7 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.15.11",
-		"minecraft": "1.21.x"
+		"fabricloader": ">=0.17.2",
+		"minecraft": "1.21.8"
 	}
 }

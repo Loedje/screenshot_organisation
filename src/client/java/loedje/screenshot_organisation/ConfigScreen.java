@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * TODO fix background
+ * TODO it's broken
  */
 @Environment(value= EnvType.CLIENT)
 public class ConfigScreen extends Screen {
@@ -67,8 +67,7 @@ public class ConfigScreen extends Screen {
 		destinationBox.setMaxLength(256);
 		destinationBox.setText(destinationBoxContent);
 		destinationBox.setChangedListener(s -> destinationBoxContent = destinationBox.getText()
-				.trim()
-				.replace("/","\\"));
+				.trim());
 		addDrawableChild(destinationBox);
 
 		addDrawableChild(ButtonWidget.builder(Text.literal("Open Minecraft directory"),
@@ -111,9 +110,9 @@ public class ConfigScreen extends Screen {
 	}
 
 	@Override
-	public void filesDragged(List<Path> paths) {
+	public void onFilesDropped(List<Path> paths) {
 		paths.forEach(path -> {
-			if (sourceBoxContent == null || sourceBoxContent.equals("")) {
+			if (sourceBoxContent == null || sourceBoxContent.isEmpty()) {
 				sourceBoxContent = path.toString();
 			} else {
 				destinationBoxContent = path.toString();

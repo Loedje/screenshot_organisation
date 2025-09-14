@@ -21,16 +21,13 @@ import java.util.Map;
 @Mixin(value = ScreenshotRecorder.class, priority = 1200)
 public class ScreenshotFolder {
 
-	@ModifyVariable(method = "saveScreenshotInner", at = @At("STORE"), ordinal = 1)
+	@ModifyVariable(method = "net/minecraft/client/util/ScreenshotRecorder.method_68157(Ljava/io/File;Ljava/lang/String;Ljava/util/function/Consumer;Lnet/minecraft/client/texture/NativeImage;)V", at = @At("STORE"), ordinal = 1)
 	private static File injected(File file) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		Map<String, String> rules = ScreenshotOrganisation.CONFIG.getRules();
-		// Shared resources mod
-
 		File screenshotsDir = new File(client.runDirectory,
 				ScreenshotRecorder.SCREENSHOTS_DIRECTORY);
 
-		// IDK if this affects performance when you take a screenie
 		if (FabricLoader.getInstance().isModLoaded("shared-resources")) {
 
 			ResourceDirectory resourceDirectory = ((ResourceDirectory) GameResourceRegistry.REGISTRY.get(Identifier.of("shared-resources:screenshots")));
