@@ -44,7 +44,7 @@ public class ScreenshotFolder {
 				return new File(rules.get(location));
 			} else { // No config
 				String levelName = client.getServer().getSaveProperties().getLevelName();
-				return new File(screenshotsDir, levelName.replaceAll("[\\\\/:*?\"<>|]", "_"));
+				return new File(screenshotsDir, levelName.replaceAll("[\\\\/:*?\"<>|]", "_").trim());
 			}
 		} else if (client.getNetworkHandler() != null) { // Multiplayer
 			ServerInfo serverInfo = client.getNetworkHandler().getServerInfo();
@@ -52,7 +52,7 @@ public class ScreenshotFolder {
 			if (rules.containsKey(location)) { // From config
 				return new File(rules.get(location));
 			} else { // No config
-				return new File(screenshotsDir, (location + " - " + serverInfo.name)
+				return new File(screenshotsDir, ((location + " - " + serverInfo.name).trim())
 						.replaceAll("[\\\\/:*?\"<>|]", "_"));
 			}
 		} else { // Screenshot outside a world.
